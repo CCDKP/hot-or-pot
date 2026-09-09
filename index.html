@@ -215,7 +215,7 @@
     border-bottom: 1px solid var(--line);
   }
   .recap-row:last-child { border-bottom: none; }
-  .recap-row .mark { font-weight: bold; width: 1em; }
+  .recap-row .mark { font-weight: bold; width: 1em; text-align: right; }
   .recap-row .mark.good { color: var(--good); }
   .recap-row .mark.bad { color: var(--bad); }
   .recap-row .who { flex: 1; }
@@ -223,7 +223,7 @@
     font-size: 1.1rem;
     line-height: 1;
     width: 1.4em;
-    text-align: right;
+    text-align: left;
   }
 
   footer { margin-top: 22px; font-size: .78rem; color: #6d5c55; }
@@ -232,13 +232,20 @@
     .app { padding: 22px 16px 18px; }
     .choices { grid-template-columns: 1fr; }
     .choices .key { display: none; }
+    /* stacked buttons are wide and short, so the icon reads better beside the label */
+    .choices .emoji {
+      display: inline;
+      font-size: 1.3rem;
+      margin: 0 10px 0 0;
+      vertical-align: -.12em;
+    }
   }
 </style>
 </head>
 <body>
 <main class="app">
 
-  <h1><span class="deco" aria-hidden="true">🌶️</span> <span class="hot">Hot</span> or <span class="pot">Pot</span> <span class="deco" aria-hidden="true">🌴</span></h1>
+  <h1><span class="deco" aria-hidden="true">🌶️</span> <span class="hot">Hot</span> or <span class="pot">Pot</span> <span class="deco" aria-hidden="true">🪴</span></h1>
   <p class="tagline">Chili pepper, cannabis strain&hellip; or both?</p>
 
   <!-- ================= START ================= -->
@@ -246,8 +253,7 @@
     <div class="hero-mark" aria-hidden="true">❓</div>
     <div class="rules">
       You get <b><span id="rules-count">10</span> names</b>. For each one, decide whether it belongs to a
-      <b>pepper</b> (Hot), a <b>cannabis strain</b> (Pot), or <b>both</b>.
-      One point per correct answer. Harder than it sounds.
+      <b>Hot Pepper</b> (Hot), a <b>Cannabis strain</b> (Pot), or <b>both</b>. Harder than it sounds.
     </div>
     <button class="big-btn" id="btn-start">Start Game</button>
   </section>
@@ -265,7 +271,7 @@
     <div class="choices">
       <button id="btn-hot"  data-answer="Hot"><span class="emoji" aria-hidden="true">🌶️</span>Hot<span class="key">pepper &middot; 1</span></button>
       <button id="btn-both" data-answer="Both"><span class="emoji" aria-hidden="true">⚖️</span>Both<span class="key">either &middot; 2</span></button>
-      <button id="btn-pot"  data-answer="Pot"><span class="emoji" aria-hidden="true">🌴</span>Pot<span class="key">strain &middot; 3</span></button>
+      <button id="btn-pot"  data-answer="Pot"><span class="emoji" aria-hidden="true">🪴</span>Pot<span class="key">strain &middot; 3</span></button>
     </div>
 
     <div class="feedback">
@@ -426,7 +432,7 @@ const LABELS = {
   Both: "both a pepper and a strain"
 };
 
-const EMOJI = { Hot: "🌶️", Pot: "🌴", Both: "⚖️" };
+const EMOJI = { Hot: "🌶️", Pot: "🪴", Both: "⚖️" };
 
 function titleCase(str) {
   return str.replace(/\S+/g, w => w.charAt(0).toUpperCase() + w.slice(1));
@@ -572,9 +578,9 @@ function endGame() {
     ans.textContent = EMOJI[h.answer];
     ans.title = h.answer;                 // hover tooltip, since the icons alone are terse
 
-    row.appendChild(mark);
+    row.appendChild(ans);       // answer icon leads
     row.appendChild(who);
-    row.appendChild(ans);
+    row.appendChild(mark);      // correct/incorrect closes the row
     recap.appendChild(row);
   });
 
