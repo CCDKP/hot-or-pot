@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hot or Pot</title>
+<meta name="description" content="Is that name a chili pepper, a cannabis strain, or both? Test your green thumb.">
+<style>
+  :root {
+    --bg: #14100f;
+    --panel: #211a19;
+    --panel-2: #2c2321;
+    --line: #3d3130;
+    --text: #f4ece6;
+    --muted: #a3928a;
+    --hot: #e0403a;
+    --pot: #4aa859;
+    --both: #e0a03a;
+    --good: #4aa859;
+    --bad: #e0403a;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: radial-gradient(circle at 20% 0%, #2a1c1a 0%, var(--bg) 55%);
+    color: var(--text);
+    font-family: "Trebuchet MS", "Segoe UI", system-ui, -apple-system, sans-serif;
+  }
+  .app {
+    width: 100%;
+    max-width: 560px;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    box-shadow: 0 18px 50px rgba(0,0,0,.45);
+    padding: 28px 24px 24px;
+    text-align: center;
+  }
+  h1 {
+    margin: 0;
+    font-size: clamp(2.2rem, 9vw, 3.2rem);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  h1 .hot { color: var(--hot); }
+  h1 .pot { color: var(--pot); }
+  .tagline {
+    margin: 8px 0 24px;
+    color: var(--muted);
+    font-size: .95rem;
+  }
+  .screen { display: none; }
+  .screen.active { display: block; }
+
+  .rules {
+    text-align: left;
+    margin: 0 auto 24px;
+    padding: 16px 18px;
+    background: var(--panel-2);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    font-size: .95rem;
+    line-height: 1.6;
+    color: var(--muted);
+  }
+  .rules b { color: var(--text); }
+
+  .status {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: .85rem;
+    letter-spacing: .5px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 10px;
+  }
+  .bar {
+    height: 6px;
+    background: var(--panel-2);
+    border-radius: 99px;
+    overflow: hidden;
+    margin-bottom: 26px;
+  }
+  .bar > div {
+    height: 100%;
+    width: 0;
+    background: linear-gradient(90deg, var(--hot), var(--both), var(--pot));
+    border-radius: 99px;
+    transition: width .3s ease;
+  }
+
+  .name {
+    font-size: clamp(1.8rem, 7vw, 2.6rem);
+    font-weight: bold;
+    line-height: 1.2;
+    margin: 26px 0 30px;
+    min-height: 2.4em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .choices {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+  }
+  button {
+    font: inherit;
+    cursor: pointer;
+    border: none;
+    border-radius: 12px;
+    color: #fff;
+    padding: 16px 8px;
+    font-weight: bold;
+    font-size: 1.05rem;
+    letter-spacing: .5px;
+    text-transform: uppercase;
+    transition: transform .12s ease, filter .12s ease, opacity .2s ease;
+  }
+  button:hover:not(:disabled) { transform: translateY(-2px); filter: brightness(1.12); }
+  button:active:not(:disabled) { transform: translateY(0); }
+  button:disabled { cursor: default; }
+  .choices .key {
+    display: block;
+    font-size: .7rem;
+    font-weight: normal;
+    opacity: .75;
+    margin-top: 4px;
+    letter-spacing: 0;
+    text-transform: none;
+  }
+  #btn-hot  { background: var(--hot); }
+  #btn-pot  { background: var(--pot); }
+  #btn-both { background: var(--both); color: #2a1d05; }
+  .choices button.faded { opacity: .3; }
+  .choices button.is-answer { outline: 3px solid #fff; outline-offset: 2px; opacity: 1; }
+
+  .feedback {
+    min-height: 100px;
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 10px;
+  }
+  .verdict { font-size: 1.2rem; font-weight: bold; }
+  .verdict.good { color: var(--good); }
+  .verdict.bad { color: var(--bad); }
+  .detail { color: var(--muted); font-size: .95rem; line-height: 1.5; }
+
+  .big-btn {
+    background: var(--text);
+    color: #1a1413;
+    padding: 15px 34px;
+    font-size: 1.05rem;
+    margin-top: 6px;
+  }
+
+  .final-score {
+    font-size: 3.6rem;
+    font-weight: bold;
+    margin: 18px 0 2px;
+  }
+  .final-score .of { font-size: 1.6rem; color: var(--muted); }
+  .final-msg { color: var(--muted); margin: 0 0 8px; font-size: 1.05rem; }
+
+  .recap {
+    text-align: left;
+    margin: 20px 0 6px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .recap-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 14px;
+    font-size: .92rem;
+    background: var(--panel-2);
+    border-bottom: 1px solid var(--line);
+  }
+  .recap-row:last-child { border-bottom: none; }
+  .recap-row .mark { font-weight: bold; width: 1em; }
+  .recap-row .mark.good { color: var(--good); }
+  .recap-row .mark.bad { color: var(--bad); }
+  .recap-row .who { flex: 1; }
+  .recap-row .ans {
+    color: var(--muted);
+    font-size: .78rem;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+  }
+
+  footer { margin-top: 22px; font-size: .78rem; color: #6d5c55; }
+
+  @media (max-width: 420px) {
+    .app { padding: 22px 16px 18px; }
+    .choices { grid-template-columns: 1fr; }
+    .choices .key { display: none; }
+  }
+</style>
+</head>
+<body>
+<main class="app">
+
+  <h1><span class="hot">Hot</span> or <span class="pot">Pot</span></h1>
+  <p class="tagline">Chili pepper, cannabis strain&hellip; or both?</p>
+
+  <!-- ================= START ================= -->
+  <section id="screen-start" class="screen active">
+    <div class="rules">
+      You get <b><span id="rules-count">10</span> names</b>. For each one, decide whether it belongs to a
+      <b>pepper</b> (Hot), a <b>cannabis strain</b> (Pot), or <b>both</b>.
+      One point per correct answer. Harder than it sounds.
+    </div>
+    <button class="big-btn" id="btn-start">Start Game</button>
+  </section>
+
+  <!-- ================= QUIZ ================= -->
+  <section id="screen-quiz" class="screen">
+    <div class="status">
+      <span id="progress-text">Question 1 of 10</span>
+      <span id="score-text">Score 0</span>
+    </div>
+    <div class="bar"><div id="progress-bar"></div></div>
+
+    <div class="name" id="name"></div>
+
+    <div class="choices">
+      <button id="btn-hot"  data-answer="Hot">Hot<span class="key">pepper &middot; 1</span></button>
+      <button id="btn-both" data-answer="Both">Both<span class="key">either &middot; 2</span></button>
+      <button id="btn-pot"  data-answer="Pot">Pot<span class="key">strain &middot; 3</span></button>
+    </div>
+
+    <div class="feedback">
+      <div class="verdict" id="verdict"></div>
+      <div class="detail" id="detail"></div>
+      <div><button class="big-btn" id="btn-next" hidden>Next</button></div>
+    </div>
+  </section>
+
+  <!-- ================= RESULTS ================= -->
+  <section id="screen-end" class="screen">
+    <div class="final-score"><span id="final-score">0</span><span class="of" id="final-of"> / 10</span></div>
+    <p class="final-msg" id="final-msg"></p>
+    <div class="recap" id="recap"></div>
+    <button class="big-btn" id="btn-again">Play Again</button>
+  </section>
+
+  <footer>Names are for trivia only &mdash; don&rsquo;t smoke your peppers.</footer>
+</main>
+
+<script>
+/* ------------------------------------------------------------------
+   NAME LIST -- one per line:  Name|Hot   Name|Pot   Name|Both
+   Add or remove lines freely; the game adapts.
+------------------------------------------------------------------ */
+const RAW_NAMES = `
+Aji Fantasy|Hot
+Aji Lemon|Hot
+Aurora|Hot
+Beaver Dam|Hot
+Big Black Mama|Hot
+big boss man|Hot
+Big Jim|Hot
+Bishop's Crown|Hot
+Black Pearl|Hot
+Black Prince|Hot
+Blazing Banana|Hot
+Brazilian Starfish|Hot
+California Wonder|Hot
+Cherry Bomb|Hot
+Count Dracula|Hot
+Cowhorn|Hot
+cristal|Hot
+Death Spiral|Hot
+Devil's Tongue|Hot
+Diablo F1|Hot
+Dundicut|Hot
+Facing Heaven|Hot
+Fire and Ice|Hot
+Holy Mole|Hot
+Infinity|Hot
+Italian Long Hot|Hot
+Italian Sweet|Hot
+Kashmiri|Hot
+Komodo Dragon|Hot
+Lemon Spice|Hot
+Little Elf|Hot
+Madame Jeanette|Hot
+Mariachi|Hot
+mexican sunset|Hot
+Mirasol|Hot
+Naga Viper|Hot
+Peruvian White|Hot
+Piquillo|Hot
+pot-a-peno|Hot
+Prarie Fire|Hot
+Pretty in Purple|Hot
+Purple Beauty|Hot
+Purple Tiger|Hot
+Purple UFO|Hot
+Rooster Spur|Hot
+Royal pequin|Hot
+Santa Fe Grande|Hot
+Sedona Sun|Hot
+Spicy Mamba|Hot
+Sugar Rush Peach|Hot
+Thai Dragon|Hot
+Trinidad Perfume|Hot
+Wiri Wiri|Hot
+Yatzy|Hot
+Yucatan White|Hot
+Amnesia|Both
+Black Fire|Both
+Black Ice|Both
+Devil's Breath|Both
+Dragon's Breath|Both
+Elephant Ears|Both
+Firecracker|Both
+Ghost|Both
+Green Dragon|Both
+Honey Badger|Both
+Lemon Drop|Both
+Mad Hatter|Both
+Medusa|Both
+Tangerine Dream|Both
+White Fire|Both
+3 Kings|Pot
+Acapulco Gold|Pot
+Baby Diablo|Pot
+Banana Ghost|Pot
+Black Mamba|Pot
+Bruce Banner|Pot
+Californian Orange|Pot
+chimera|Pot
+Critical Mass|Pot
+Crystal|Pot
+Dante's Inferno|Pot
+Death Star|Pot
+Devil Driver|Pot
+Don Mega|Pot
+Dragonfire|Pot
+Durban Poison|Pot
+Fire breath|Pot
+Firewalker|Pot
+Gelato|Pot
+Ghost Train|Pot
+Golden Pineapple|Pot
+Granddaddy Purple|Pot
+holy moly|Pot
+Horchata|Pot
+Italian Ice|Pot
+Kali Mist|Pot
+King Louis|Pot
+Lamb's Breath|Pot
+Lemon Cane|Pot
+Lemon Jack|Pot
+little dragon|Pot
+mandarin sunset|Pot
+Mexican Red|Pot
+Panama Red|Pot
+Pink Acai|Pot
+Purple Alien|Pot
+Purple Fire|Pot
+Purple Trainwreck|Pot
+Red Dragon|Pot
+Red Pop|Pot
+royal phoenix|Pot
+sedona sunrise|Pot
+spicy badger|Pot
+Thai Stick|Pot
+Thai Sunset|Pot
+Trinity|Pot
+Vortex|Pot
+Wedding Cake|Pot
+White Buffalo|Pot
+White Rhino|Pot
+White Widow|Pot
+Yuzu Viper|Pot
+`;
+
+/* ---------------------- setup ---------------------- */
+const QUESTIONS_PER_ROUND = 10;
+
+const LABELS = {
+  Hot:  "a chili pepper",
+  Pot:  "a cannabis strain",
+  Both: "both a pepper and a strain"
+};
+
+function titleCase(str) {
+  return str.replace(/\S+/g, w => w.charAt(0).toUpperCase() + w.slice(1));
+}
+
+const NAMES = RAW_NAMES.trim().split("\n").map(line => {
+  const parts = line.split("|");
+  return { name: titleCase(parts[0].trim()), answer: parts[1].trim() };
+});
+
+const roundSize = Math.min(QUESTIONS_PER_ROUND, NAMES.length);
+
+/* ---------------------- elements ---------------------- */
+const el = id => document.getElementById(id);
+const screens = {
+  start: el("screen-start"),
+  quiz:  el("screen-quiz"),
+  end:   el("screen-end")
+};
+const choiceButtons = [].slice.call(document.querySelectorAll(".choices button"));
+
+/* ---------------------- state ---------------------- */
+let round = [];      // the questions for this round
+let index = 0;       // current question
+let score = 0;
+let answered = false;
+let history = [];    // { name, answer, guess, correct }
+
+/* ---------------------- helpers ---------------------- */
+function show(which) {
+  Object.keys(screens).forEach(k => screens[k].classList.remove("active"));
+  screens[which].classList.add("active");
+}
+
+function pickRound() {
+  const pool = NAMES.slice();
+
+  for (let i = pool.length - 1; i > 0; i--) {   // Fisher-Yates
+    const j = Math.floor(Math.random() * (i + 1));
+    const tmp = pool[i]; pool[i] = pool[j]; pool[j] = tmp;
+  }
+
+  return pool.slice(0, roundSize);              // unique within a round; rounds may overlap
+}
+
+function ratingMessage(hits, total) {
+  const pct = hits / total;
+  if (pct === 1)  return "Flawless. You have seen things.";
+  if (pct >= 0.8) return "Seasoned grower. Very impressive.";
+  if (pct >= 0.6) return "Solid instincts, a few burns.";
+  if (pct >= 0.4) return "Coin-flip territory. Keep practising.";
+  if (pct > 0)    return "Rough round. These names are sneaky.";
+  return "Zero. Statistically, that is its own achievement.";
+}
+
+/* ---------------------- game flow ---------------------- */
+function startGame() {
+  round = pickRound();
+  index = 0;
+  score = 0;
+  history = [];
+  show("quiz");
+  renderQuestion();
+}
+
+function renderQuestion() {
+  answered = false;
+  const q = round[index];
+
+  el("name").textContent = q.name;
+  el("progress-text").textContent = "Question " + (index + 1) + " of " + round.length;
+  el("score-text").textContent = "Score " + score;
+  el("progress-bar").style.width = (index / round.length) * 100 + "%";
+
+  el("verdict").textContent = "";
+  el("verdict").className = "verdict";
+  el("detail").textContent = "";
+  el("btn-next").hidden = true;
+
+  choiceButtons.forEach(b => {
+    b.disabled = false;
+    b.classList.remove("faded", "is-answer");
+  });
+}
+
+function submitAnswer(guess) {
+  if (answered) return;
+  answered = true;
+
+  const q = round[index];
+  const correct = guess === q.answer;
+  if (correct) score++;
+  history.push({ name: q.name, answer: q.answer, guess: guess, correct: correct });
+
+  choiceButtons.forEach(b => {
+    b.disabled = true;
+    if (b.dataset.answer === q.answer) b.classList.add("is-answer");
+    else b.classList.add("faded");
+  });
+
+  const verdict = el("verdict");
+  verdict.textContent = correct ? "Correct!" : "Nope.";
+  verdict.classList.add(correct ? "good" : "bad");
+  el("detail").textContent = q.name + " is " + LABELS[q.answer] + ".";
+
+  el("score-text").textContent = "Score " + score;
+  el("progress-bar").style.width = ((index + 1) / round.length) * 100 + "%";
+
+  const next = el("btn-next");
+  next.textContent = (index + 1 < round.length) ? "Next" : "See Results";
+  next.hidden = false;
+  next.focus();
+}
+
+function nextQuestion() {
+  index++;
+  if (index < round.length) renderQuestion();
+  else endGame();
+}
+
+function endGame() {
+  el("final-score").textContent = score;
+  el("final-msg").textContent = ratingMessage(score, round.length);
+
+  const recap = el("recap");
+  recap.innerHTML = "";
+  history.forEach(h => {
+    const row = document.createElement("div");
+    row.className = "recap-row";
+
+    const mark = document.createElement("span");
+    mark.className = "mark " + (h.correct ? "good" : "bad");
+    mark.textContent = h.correct ? "✓" : "✗";
+
+    const who = document.createElement("span");
+    who.className = "who";
+    who.textContent = h.name;
+
+    const ans = document.createElement("span");
+    ans.className = "ans";
+    ans.textContent = h.answer;
+
+    row.appendChild(mark);
+    row.appendChild(who);
+    row.appendChild(ans);
+    recap.appendChild(row);
+  });
+
+  show("end");
+  el("btn-again").focus();
+}
+
+/* ---------------------- wiring ---------------------- */
+el("btn-start").addEventListener("click", startGame);
+el("btn-again").addEventListener("click", startGame);
+el("btn-next").addEventListener("click", nextQuestion);
+choiceButtons.forEach(b =>
+  b.addEventListener("click", () => submitAnswer(b.dataset.answer))
+);
+
+document.addEventListener("keydown", e => {
+  if (screens.quiz.classList.contains("active")) {
+    if (!answered) {
+      if (e.key === "1") submitAnswer("Hot");
+      if (e.key === "2") submitAnswer("Both");
+      if (e.key === "3") submitAnswer("Pot");
+    } else if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      nextQuestion();
+    }
+  } else if (e.key === "Enter") {
+    startGame();
+  }
+});
+
+/* keep the copy honest if the name list is ever shorter than 10 */
+el("rules-count").textContent = roundSize;
+el("progress-text").textContent = "Question 1 of " + roundSize;
+el("final-of").textContent = " / " + roundSize;
+</script>
+</body>
+</html>
