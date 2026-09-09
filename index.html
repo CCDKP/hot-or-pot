@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Hot or Pot</title>
 <meta name="description" content="Is that name a chili pepper, a cannabis strain, or both? Test your green thumb.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='92'%3E%F0%9F%8C%B6%EF%B8%8F%3C/text%3E%3C/svg%3E">
 <style>
   :root {
     --bg: #14100f;
@@ -13,9 +14,14 @@
     --line: #3d3130;
     --text: #f4ece6;
     --muted: #a3928a;
+    /* bright accents -- used for text and marks on the dark panel */
     --hot: #e0403a;
     --pot: #4aa859;
     --both: #e0a03a;
+    /* deeper fills -- used for the answer buttons, so the emoji stay legible */
+    --hot-btn: #96271f;
+    --both-btn: #8a5d15;
+    --pot-btn: #246631;
     --good: #4aa859;
     --bad: #e0403a;
   }
@@ -43,12 +49,13 @@
   }
   h1 {
     margin: 0;
-    font-size: clamp(2.2rem, 9vw, 3.2rem);
+    font-size: clamp(1.7rem, 7.4vw, 3.2rem);
     letter-spacing: 1px;
     text-transform: uppercase;
   }
   h1 .hot { color: var(--hot); }
   h1 .pot { color: var(--pot); }
+  h1 .deco { font-size: .66em; vertical-align: .04em; }
   .tagline {
     margin: 8px 0 24px;
     color: var(--muted);
@@ -69,6 +76,13 @@
     color: var(--muted);
   }
   .rules b { color: var(--text); }
+
+  .hero-mark {
+    font-size: 3.6rem;
+    line-height: 1;
+    margin: 2px 0 22px;
+    filter: drop-shadow(0 6px 14px rgba(0,0,0,.5));
+  }
 
   .status {
     display: flex;
@@ -127,19 +141,26 @@
   button:hover:not(:disabled) { transform: translateY(-2px); filter: brightness(1.12); }
   button:active:not(:disabled) { transform: translateY(0); }
   button:disabled { cursor: default; }
+  .choices .emoji {
+    display: block;
+    font-size: 1.6rem;
+    line-height: 1;
+    margin-bottom: 7px;
+    filter: drop-shadow(0 1px 2px rgba(0,0,0,.85));
+  }
   .choices .key {
     display: block;
     font-size: .7rem;
     font-weight: normal;
-    opacity: .75;
+    opacity: .85;
     margin-top: 4px;
     letter-spacing: 0;
     text-transform: none;
   }
-  #btn-hot  { background: var(--hot); }
-  #btn-pot  { background: var(--pot); }
-  #btn-both { background: var(--both); color: #2a1d05; }
-  .choices button.faded { opacity: .3; }
+  #btn-hot  { background: var(--hot-btn); }
+  #btn-pot  { background: var(--pot-btn); }
+  #btn-both { background: var(--both-btn); }
+  .choices button.faded { opacity: .38; }
   .choices button.is-answer { outline: 3px solid #fff; outline-offset: 2px; opacity: 1; }
 
   .feedback {
@@ -163,6 +184,12 @@
     margin-top: 6px;
   }
 
+  .tier {
+    font-size: 3.2rem;
+    line-height: 1;
+    margin-top: 10px;
+    filter: drop-shadow(0 6px 14px rgba(0,0,0,.5));
+  }
   .final-score {
     font-size: 3.6rem;
     font-weight: bold;
@@ -193,10 +220,10 @@
   .recap-row .mark.bad { color: var(--bad); }
   .recap-row .who { flex: 1; }
   .recap-row .ans {
-    color: var(--muted);
-    font-size: .78rem;
-    text-transform: uppercase;
-    letter-spacing: .5px;
+    font-size: 1.1rem;
+    line-height: 1;
+    width: 1.4em;
+    text-align: right;
   }
 
   footer { margin-top: 22px; font-size: .78rem; color: #6d5c55; }
@@ -211,11 +238,12 @@
 <body>
 <main class="app">
 
-  <h1><span class="hot">Hot</span> or <span class="pot">Pot</span></h1>
+  <h1><span class="deco" aria-hidden="true">🌶️</span> <span class="hot">Hot</span> or <span class="pot">Pot</span> <span class="deco" aria-hidden="true">🌴</span></h1>
   <p class="tagline">Chili pepper, cannabis strain&hellip; or both?</p>
 
   <!-- ================= START ================= -->
   <section id="screen-start" class="screen active">
+    <div class="hero-mark" aria-hidden="true">❓</div>
     <div class="rules">
       You get <b><span id="rules-count">10</span> names</b>. For each one, decide whether it belongs to a
       <b>pepper</b> (Hot), a <b>cannabis strain</b> (Pot), or <b>both</b>.
@@ -235,9 +263,9 @@
     <div class="name" id="name"></div>
 
     <div class="choices">
-      <button id="btn-hot"  data-answer="Hot">Hot<span class="key">pepper &middot; 1</span></button>
-      <button id="btn-both" data-answer="Both">Both<span class="key">either &middot; 2</span></button>
-      <button id="btn-pot"  data-answer="Pot">Pot<span class="key">strain &middot; 3</span></button>
+      <button id="btn-hot"  data-answer="Hot"><span class="emoji" aria-hidden="true">🌶️</span>Hot<span class="key">pepper &middot; 1</span></button>
+      <button id="btn-both" data-answer="Both"><span class="emoji" aria-hidden="true">⚖️</span>Both<span class="key">either &middot; 2</span></button>
+      <button id="btn-pot"  data-answer="Pot"><span class="emoji" aria-hidden="true">🌴</span>Pot<span class="key">strain &middot; 3</span></button>
     </div>
 
     <div class="feedback">
@@ -249,6 +277,7 @@
 
   <!-- ================= RESULTS ================= -->
   <section id="screen-end" class="screen">
+    <div class="tier" id="tier" aria-hidden="true"></div>
     <div class="final-score"><span id="final-score">0</span><span class="of" id="final-of"> / 10</span></div>
     <p class="final-msg" id="final-msg"></p>
     <div class="recap" id="recap"></div>
@@ -397,6 +426,8 @@ const LABELS = {
   Both: "both a pepper and a strain"
 };
 
+const EMOJI = { Hot: "🌶️", Pot: "🌴", Both: "⚖️" };
+
 function titleCase(str) {
   return str.replace(/\S+/g, w => w.charAt(0).toUpperCase() + w.slice(1));
 }
@@ -441,14 +472,14 @@ function pickRound() {
   return pool.slice(0, roundSize);              // unique within a round; rounds may overlap
 }
 
-function ratingMessage(hits, total) {
+function rating(hits, total) {
   const pct = hits / total;
-  if (pct === 1)  return "Flawless. You have seen things.";
-  if (pct >= 0.8) return "Seasoned grower. Very impressive.";
-  if (pct >= 0.6) return "Solid instincts, a few burns.";
-  if (pct >= 0.4) return "Coin-flip territory. Keep practising.";
-  if (pct > 0)    return "Rough round. These names are sneaky.";
-  return "Zero. Statistically, that is its own achievement.";
+  if (pct === 1)  return { emoji: "🏆", msg: "Flawless. You have seen things." };
+  if (pct >= 0.8) return { emoji: "🌟", msg: "Seasoned grower. Very impressive." };
+  if (pct >= 0.6) return { emoji: "👍", msg: "Solid instincts, a few burns." };
+  if (pct >= 0.4) return { emoji: "🤔", msg: "Coin-flip territory. Keep practising." };
+  if (pct > 0)    return { emoji: "😵", msg: "Rough round. These names are sneaky." };
+  return { emoji: "😵", msg: "Zero. Statistically, that is its own achievement." };
 }
 
 /* ---------------------- game flow ---------------------- */
@@ -497,7 +528,7 @@ function submitAnswer(guess) {
   });
 
   const verdict = el("verdict");
-  verdict.textContent = correct ? "Correct!" : "Nope.";
+  verdict.textContent = correct ? "🔥 Correct!" : "Nope.";
   verdict.classList.add(correct ? "good" : "bad");
   el("detail").textContent = q.name + " is " + LABELS[q.answer] + ".";
 
@@ -517,8 +548,10 @@ function nextQuestion() {
 }
 
 function endGame() {
+  const result = rating(score, round.length);
+  el("tier").textContent = result.emoji;
   el("final-score").textContent = score;
-  el("final-msg").textContent = ratingMessage(score, round.length);
+  el("final-msg").textContent = result.msg;
 
   const recap = el("recap");
   recap.innerHTML = "";
@@ -536,7 +569,8 @@ function endGame() {
 
     const ans = document.createElement("span");
     ans.className = "ans";
-    ans.textContent = h.answer;
+    ans.textContent = EMOJI[h.answer];
+    ans.title = h.answer;                 // hover tooltip, since the icons alone are terse
 
     row.appendChild(mark);
     row.appendChild(who);
